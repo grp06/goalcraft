@@ -12,10 +12,12 @@ Copy or symlink this repository into a Codex skills directory:
 ln -s "$(pwd)" ~/.codex/skills/goalcraft
 ```
 
-Restart Codex, then invoke the skill with:
+Restart Codex, then invoke the skill with a rough, real-world brief. It does not need to be clean:
 
 ```text
-Use $goalcraft to turn this rough draft into an activation-ready Codex /goal objective.
+Use $goalcraft to turn this into a Codex /goal:
+
+I need to clean up the billing settings page in the web app. It's kind of half-done from a previous pass. The upgrade button works but the loading and error states are janky, and I think mobile is probably broken. Please make it match the rest of the settings UI, don't touch the Stripe webhook stuff or pricing logic unless something is obviously wrong, and don't do a huge refactor. It should have tests or at least whatever checks this repo normally uses. I want Codex to keep going until the page is actually usable and verified, but it should stop and ask me before changing public APIs, database schema, or anything payment-risky.
 ```
 
 ## What It Produces
