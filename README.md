@@ -31,8 +31,8 @@ Goalcraft drafts `/goal` prompts with:
 
 By default it drafts goal text only. It should not activate a Codex goal unless explicitly asked.
 
-Before returning a goal, Goalcraft validates that the objective text after `/goal ` is less than 4,000 characters. The bundled validator can be used directly:
+Before returning a goal, Goalcraft validates that the objective text after `/goal ` is less than 4,000 characters. Its working target is 3,400 characters, and drafts at 3,800+ characters should be compressed. The bundled validator can be used directly:
 
 ```bash
-python3 scripts/validate_goal_length.py goal.txt
+python3 scripts/validate_goal_length.py --target-chars 3400 --strict-target goal.txt
 ```

@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 DEFAULT_MAX_CHARS = 3_999
-TARGET_CHARS = 3_800
+TARGET_CHARS = 3_400
 
 
 def objective_text(text: str) -> str:
@@ -51,6 +51,11 @@ def main() -> int:
         default=TARGET_CHARS,
         help=f"Recommended target objective characters. Default: {TARGET_CHARS}.",
     )
+    parser.add_argument(
+        "--strict-target",
+        action="store_true",
+        help="Exit non-zero when objective characters exceed --target-chars.",
+    )
     args = parser.parse_args()
 
     objective = objective_text(read_input(args.path))
@@ -63,6 +68,8 @@ def main() -> int:
         return 1
     if count > args.target_chars:
         print("warning=objective passes hard limit but exceeds target", file=sys.stderr)
+        if args.strict_target:
+            return 1
     return 0
 
 
