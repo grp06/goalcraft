@@ -1,37 +1,38 @@
 # Goalcraft
 
-Goalcraft is an Agent Skill for turning a rough task idea into an activation-ready Codex `/goal` objective.
+Goalcraft turns a messy task description into a Codex `/goal` you can paste and run.
 
-It helps write goals as completion contracts: scoped, evidence-based, bounded by clear stop conditions, and hard to mark complete without real verification.
+When you use `/goal`, the agent runs autonomously toward whatever you wrote down. A weak goal means the agent will claim "done" on something that isn't. Goalcraft writes goals that are tight on scope, clear on what counts as done, and structured so the agent has to show real evidence before declaring success.
 
 ## Install
 
-Copy or symlink this repository into a Codex skills directory:
+Symlink this repo into your Codex skills directory:
 
 ```bash
 ln -s "$(pwd)" ~/.codex/skills/goalcraft
 ```
 
-Restart Codex, then invoke the skill with a rough, real-world brief. It does not need to be clean:
+Restart Codex, then invoke it with a rough brief. The brief doesn't need to be clean — that's the point:
 
 > Use `$goalcraft` to turn this into a Codex `/goal`:
-
+>
 > I need to clean up the billing settings page in the web app. It's kind of half-done from a previous pass. The upgrade button works but the loading and error states are janky, and I think mobile is probably broken. Please make it match the rest of the settings UI, don't touch the Stripe webhook stuff or pricing logic unless something is obviously wrong, and don't do a huge refactor. It should have tests or at least whatever checks this repo normally uses. I want Codex to keep going until the page is actually usable and verified, but it should stop and ask me before changing public APIs, database schema, or anything payment-risky.
 
-## What It Produces
+## What you get back
 
-Goalcraft drafts `/goal` prompts with:
+A `/goal` that spells out:
 
-- destination and starting point;
-- scope and deliverables;
-- constraints and non-regression rules;
-- autonomy and checkpoint guidance;
-- verification gates;
-- done criteria, stop conditions, and success metrics.
+- **Where things stand and what "done" looks like** — so the agent has a clear destination
+- **What to work on, what to leave alone** — scope and non-negotiables
+- **How to verify the work** — specific commands, tests, or checks that prove it shipped
+- **When to keep going vs. stop and ask** — autonomy rules for risky or ambiguous moves
+- **What counts as success** — measurable criteria, not "looks good to me"
 
-By default it drafts goal text only. It should not activate a Codex goal unless explicitly asked.
+By default, goalcraft only drafts the goal. It won't activate it unless you tell it to.
 
-Before returning a goal, Goalcraft validates that the objective text after `/goal ` is less than 4,000 characters. Its working target is 3,400 characters, and drafts at 3,800+ characters should be compressed. The bundled validator can be used directly:
+## Length safety
+
+Codex caps `/goal` text at 4,000 characters. Goalcraft targets 3,400 and compresses any draft over 3,800 before returning it. If you want to check a goal manually:
 
 ```bash
 python3 scripts/validate_goal_length.py --target-chars 3400 --strict-target goal.txt
