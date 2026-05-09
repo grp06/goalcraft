@@ -6,11 +6,15 @@ When you use `/goal`, the agent runs autonomously toward whatever you wrote down
 
 ## Install
 
-Symlink this repo into your Codex skills directory:
+Clone the repo, then symlink it into your Codex skills directory:
 
 ```bash
+git clone https://github.com/grp06/goalcraft.git
+cd goalcraft
 ln -s "$(pwd)" ~/.codex/skills/goalcraft
 ```
+
+If your Codex setup uses a different skills directory, symlink the repo there instead. The skill is self-contained; it does not depend on any local project path.
 
 Restart Codex, then invoke it with a rough brief. The brief doesn't need to be clean — that's the point:
 
@@ -32,10 +36,10 @@ By default, goalcraft only drafts the goal. It won't activate it unless you tell
 
 ## Length safety
 
-Codex caps `/goal` text at 4,000 characters. Goalcraft targets 3,400 and compresses any draft over 3,800 before returning it. If you want to check a goal manually:
+Codex caps `/goal` text at 4,000 characters. Goalcraft targets 3,400 and compresses any draft over 3,800 before returning it. If you want to check a goal manually from this repo:
 
 ```bash
 python3 scripts/validate_goal_length.py --target-chars 3400 --strict-target goal.txt
 ```
 
-That script is bundled with the Goalcraft skill repo. When using the skill inside another project, the validator path should point back to the installed Goalcraft skill directory, not the target project's `scripts/` folder.
+That script is bundled with this Goalcraft repo. When the skill is used while working in another project, agents should resolve `scripts/validate_goal_length.py` relative to Goalcraft's own `SKILL.md`, not relative to the project being edited. If the skill runtime does not expose that path, Goalcraft's instructions include an inline Python fallback that works anywhere with Python 3.

@@ -57,8 +57,8 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - Keep examples and candidate lists outside the goal unless they are essential execution constraints.
 
 5. Validate length before returning.
-   - Put only the ready-to-paste `/goal ...` command in a temporary file or pipe it to the bundled validator: `<goalcraft skill directory>/scripts/validate_goal_length.py --target-chars 3400 --strict-target`.
-   - The validator belongs to this skill, not to the user's target repo. Do not search the target repo for `scripts/validate_goal_length.py`.
+   - Put only the ready-to-paste `/goal ...` command in a temporary file or pipe it to this skill's bundled validator: resolve `scripts/validate_goal_length.py` relative to the directory containing this `SKILL.md`, then run it with `--target-chars 3400 --strict-target`.
+   - The validator belongs to Goalcraft, not to the user's working project. Do not search the user's repository for `scripts/validate_goal_length.py`.
    - The script strips a leading `/goal ` and counts the actual objective Codex validates.
    - If over 3,999 characters, compress and revalidate.
    - If 3,800 to 3,999 characters, compress and revalidate.
@@ -126,4 +126,4 @@ After the block, report the validated objective character count, for example: `O
 - The goal should make premature completion hard: "done" must require evidence, not intent, elapsed time, or passing unrelated checks.
 - The goal should avoid over-prescribing implementation details unless those details are part of the actual requirement.
 - The goal should preserve user boundaries: planning-only, no edits, no deploys, no commits, or approval requirements must be explicit when present.
-- The final ready-to-paste goal must pass the bundled `scripts/validate_goal_length.py --target-chars 3400 --strict-target` or the deterministic fallback above.
+- The final ready-to-paste goal must pass this skill's bundled `scripts/validate_goal_length.py --target-chars 3400 --strict-target` or the deterministic fallback above.
