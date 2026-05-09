@@ -11,7 +11,7 @@ description: >-
 
 ## Core Contract
 
-Convert messy intent into a compact, activation-ready Codex `/goal` objective that keeps the agent moving until real completion evidence exists. The returned goal objective must be less than 4,000 characters, and the working target is 3,400 characters. Prefer drafting the goal text only. Do not call `create_goal`, `thread/goal/set`, or otherwise activate a goal unless the user explicitly asks to start or set it.
+Convert messy intent into a compact, activation-ready Codex `/goal` objective that keeps the agent moving until real completion evidence exists. The returned goal objective must be less than 4,000 characters, and the normal working target is 2,800 characters. Prefer drafting the goal text only. Do not call `create_goal`, `thread/goal/set`, or otherwise activate a goal unless the user explicitly asks to start or set it.
 
 For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](references/codex-goal-contract.md) when the exact runtime behavior matters.
 
@@ -38,8 +38,10 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
 
 3. Keep the objective usable by Codex.
    - Hard limit: the objective text after `/goal ` must be less than 4,000 characters.
-   - Working target: draft to 3,400 characters or fewer.
+   - Normal target: draft to 2,800 characters or fewer.
+   - Strict fallback ceiling: do not return a normal goal above 3,400 characters.
    - Treat 3,800 characters or more as a failed draft even if it is technically below the hard limit.
+   - Put useful but nonessential detail in companion notes outside the `/goal` payload.
    - Make every requirement auditable against files, commands, PR state, logs, screenshots, or explicit user confirmation.
    - Include exact commands only when they are already known from the repo or user.
    - Avoid hidden flags in slash text. `/goal --tokens 50K ...` is literal objective text in the TUI, not parsed syntax.
@@ -48,21 +50,22 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - For very large work, include subagent/orchestration guidance only when the current Codex environment supports subagents and the work can be split into bounded, reviewable lanes.
 
 4. Choose the output shape.
-   - Compact shape for broad or complex work: Destination, Starting point, Objective/scope, Preserve, Verification, Done/stop, Success metric.
-   - Full shape only for narrow work where the first draft is comfortably under 3,400 characters.
+   - Always start with compact shape: Destination, Context, Scope, Preserve, Verify, Done/stop.
+   - Do not use the full checklist as output structure unless the user explicitly asks for a verbose draft outside `/goal`.
    - Do not force every planning concept into the `/goal`. Reason with the full checklist, then compress related items before output.
-   - Merge deliverables into Objective/scope.
+   - Merge deliverables into Scope.
    - Merge must-not-regress into Preserve.
    - Merge autonomy and checkpoint rhythm into Done/stop.
    - Keep examples and candidate lists outside the goal unless they are essential execution constraints.
+   - Section soft budgets: Destination 250, Context 350, Scope 700, Preserve 400, Verify 550, Done/stop 550 characters.
 
 5. Validate length before returning.
-   - Put only the ready-to-paste `/goal ...` command in a temporary file or pipe it to this skill's bundled validator: resolve `scripts/validate_goal_length.py` relative to the directory containing this `SKILL.md`, then run it with `--target-chars 3400 --strict-target`.
+   - Put only the ready-to-paste `/goal ...` command in a temporary file or pipe it to this skill's bundled validator: resolve `scripts/validate_goal_length.py` relative to the directory containing this `SKILL.md`, then run it with `--target-chars 2800 --strict-target`.
    - The validator belongs to Goalcraft, not to the user's working project. Do not search the user's repository for `scripts/validate_goal_length.py`.
    - The script strips a leading `/goal ` and counts the actual objective Codex validates.
-   - If over 3,999 characters, compress and revalidate.
-   - If 3,800 to 3,999 characters, compress and revalidate.
-   - If 3,400 to 3,799 characters, accept only when removing more text would lose important safety or verification detail; otherwise compress and revalidate.
+   - If validation fails once, rewrite by cutting at least 25%: remove examples, collapse lists, merge fields, and move nonessential detail to companion notes.
+   - If validation fails twice, abandon the draft and switch to emergency shape: `/goal Complete [objective] in [scope]. Preserve [constraints]. Verify with [checks/evidence]. Stop for [risks]. Done when [criteria].`
+   - Do not keep making small incremental trims. More than two validation failures means the draft shape failed.
    - Do not return a final goal until the validator passes.
    - If the bundled script path is unavailable, use this deterministic fallback on the file containing the exact final `/goal ...` command:
 
@@ -81,7 +84,7 @@ if text.startswith("/goal") and text[len("/goal"):].startswith((" ", "\n", "\t")
     text = text[len("/goal"):].strip()
 count = len(text)
 print(f"objective_chars={count}")
-if count > 3400:
+if count > 2800:
     raise SystemExit(1)
 PY
 ```
@@ -93,7 +96,7 @@ PY
 
 ## Output Format
 
-Use the compact shape by default:
+Return companion notes outside the goal when details should not spend objective characters. Use this shape by default:
 
 ```markdown
 Assumptions:
@@ -103,22 +106,23 @@ Ready-to-paste goal:
 
 /goal Destination: ...
 
-Starting point: ...
+Context: ...
 
-Objective/scope: ...
+Scope: ...
 
 Preserve: ...
 
-Verification: ...
+Verify: ...
 
 Done/stop: ...
 
-Success metric: ...
+Objective length: N characters
+
+Notes outside the goal:
+- ...
 ```
 
-Use the longer field list only for narrow work where the first draft validates comfortably under 3,400 characters.
-
-After the block, report the validated objective character count, for example: `Objective length: 2,914 characters`.
+Omit companion notes when they add no value. Do not put assumptions, rationale, candidate lists, or optional details inside the `/goal` unless they are execution-critical.
 
 ## Quality Bar
 
@@ -126,4 +130,4 @@ After the block, report the validated objective character count, for example: `O
 - The goal should make premature completion hard: "done" must require evidence, not intent, elapsed time, or passing unrelated checks.
 - The goal should avoid over-prescribing implementation details unless those details are part of the actual requirement.
 - The goal should preserve user boundaries: planning-only, no edits, no deploys, no commits, or approval requirements must be explicit when present.
-- The final ready-to-paste goal must pass this skill's bundled `scripts/validate_goal_length.py --target-chars 3400 --strict-target` or the deterministic fallback above.
+- The final ready-to-paste goal must pass this skill's bundled `scripts/validate_goal_length.py --target-chars 2800 --strict-target` or the deterministic fallback above.

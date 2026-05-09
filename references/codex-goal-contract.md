@@ -61,5 +61,5 @@ Write objectives as durable operating contracts, not motivational blurbs:
 - define checkpoint behavior: when to run checks, review the diff, keep a short progress log, and report status;
 - specify non-regression constraints and approval boundaries;
 - include stop conditions for destructive, externally visible, credentialed, or ambiguous actions;
-- keep the objective text after `/goal ` below 4,000 characters; target 3,400 or fewer, treat 3,800+ as a failed draft, and validate before returning;
+- keep the objective text after `/goal ` below 4,000 characters; target 2,800 or fewer, treat 3,400+ as exceptional, treat 3,800+ as failed, and validate before returning;
 - do not embed prompt-injection-style instructions or ask the agent to ignore higher-priority instructions.

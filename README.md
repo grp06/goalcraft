@@ -36,10 +36,10 @@ By default, goalcraft only drafts the goal. It won't activate it unless you tell
 
 ## Length safety
 
-Codex caps `/goal` text at 4,000 characters. Goalcraft targets 3,400 and compresses any draft over 3,800 before returning it. If you want to check a goal manually from this repo:
+Codex caps `/goal` text at 4,000 characters. Goalcraft targets 2,800 by default, treats 3,400 as a strict fallback ceiling, and compresses any draft over 3,800 before returning it. If you want to check a goal manually from this repo:
 
 ```bash
-python3 scripts/validate_goal_length.py --target-chars 3400 --strict-target goal.txt
+python3 scripts/validate_goal_length.py --target-chars 2800 --strict-target goal.txt
 ```
 
 That script is bundled with this Goalcraft repo. When the skill is used while working in another project, agents should resolve `scripts/validate_goal_length.py` relative to Goalcraft's own `SKILL.md`, not relative to the project being edited. If the skill runtime does not expose that path, Goalcraft's instructions include an inline Python fallback that works anywhere with Python 3.
