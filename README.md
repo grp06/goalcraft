@@ -37,3 +37,5 @@ Codex caps `/goal` text at 4,000 characters. Goalcraft targets 3,400 and compres
 ```bash
 python3 scripts/validate_goal_length.py --target-chars 3400 --strict-target goal.txt
 ```
+
+That script is bundled with the Goalcraft skill repo. When using the skill inside another project, the validator path should point back to the installed Goalcraft skill directory, not the target project's `scripts/` folder.
