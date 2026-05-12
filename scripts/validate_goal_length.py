@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 DEFAULT_MAX_CHARS = 3_999
-TARGET_CHARS = 2_800
+TARGET_CHARS = 1_600
 
 
 def objective_text(text: str) -> str:
