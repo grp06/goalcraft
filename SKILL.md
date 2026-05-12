@@ -11,7 +11,7 @@ description: >-
 
 ## Core Contract
 
-Convert messy intent into a compact, activation-ready Codex `/goal` objective that keeps the agent moving until real completion evidence exists. The returned goal objective must be less than 4,000 characters, and the normal working target is 2,800 characters. Prefer drafting the goal text only. Do not call `create_goal`, `thread/goal/set`, or otherwise activate a goal unless the user explicitly asks to start or set it.
+Convert messy intent into a compact, activation-ready Codex `/goal` objective that keeps the agent moving until real completion evidence exists. A strong goal defines a closed loop: choose the next action, run it, score progress against an explicit evaluator or checklist, record the result, then continue or stop based on evidence. The returned goal objective must be less than 4,000 characters, and the normal working target is 2,800 characters. Prefer drafting the goal text only. Do not call `create_goal`, `thread/goal/set`, or otherwise activate a goal unless the user explicitly asks to start or set it.
 
 For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](references/codex-goal-contract.md) when the exact runtime behavior matters.
 
@@ -36,20 +36,28 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - Stop conditions: blockers, destructive actions, missing credentials, user approval boundaries.
    - Success metric: the observable result that proves completion.
 
-3. Keep the objective usable by Codex.
+3. Design the feedback loop before drafting the final goal.
+   - Identify the score: metric, checklist, test result, scorecard, artifact count, benchmark, manual-review packet, or other evidence that lets Codex decide whether progress improved, stalled, or completed.
+   - Prefer a fast iteration evaluator plus a slower final gate. For example: cheap smoke test, subsampled eval, lint/typecheck, focused replay, or checklist during work; full suite, full replay, deploy check, visual review, or final report before done.
+   - For multi-hour or multi-day goals, name or recommend durable tracking surfaces: a current plan/queue, experiment or attempt ledger, decision/rejection log, scratchpad or daily notes, and generated current-state summary when useful.
+   - If the real goal cannot yet be measured, recommend a preliminary goal to create the checklist, evaluator, scorecard, or tracking files before starting the main autonomous loop.
+   - Treat tracking files as part of the control loop, not optional documentation. They should help the next agent choose the next action without rereading the full conversation.
+
+4. Keep the objective usable by Codex.
    - Hard limit: the objective text after `/goal ` must be less than 4,000 characters.
    - Normal target: draft to 2,800 characters or fewer.
    - Strict fallback ceiling: do not return a normal goal above 3,400 characters.
    - Treat 3,800 characters or more as a failed draft even if it is technically below the hard limit.
    - Put useful but nonessential detail in companion notes outside the `/goal` payload.
    - Make every requirement auditable against files, commands, PR state, logs, screenshots, or explicit user confirmation.
+   - Include score-loop and tracking-file detail in the `/goal` only when execution-critical; otherwise put detailed evaluator/checklist/memory structure in companion notes or a referenced repo document.
    - Include exact commands only when they are already known from the repo or user.
    - Avoid hidden flags in slash text. `/goal --tokens 50K ...` is literal objective text in the TUI, not parsed syntax.
    - If a token budget is requested, present it separately from the objective text unless the target surface supports a separate budget field.
    - For complex or ambiguous work, recommend a planning/interview pass before setting the goal.
    - For very large work, include subagent/orchestration guidance only when the current Codex environment supports subagents and the work can be split into bounded, reviewable lanes.
 
-4. Choose the output shape.
+5. Choose the output shape.
    - Always start with compact shape: Destination, Context, Scope, Preserve, Verify, Done/stop.
    - Do not use the full checklist as output structure unless the user explicitly asks for a verbose draft outside `/goal`.
    - Do not force every planning concept into the `/goal`. Reason with the full checklist, then compress related items before output.
@@ -59,7 +67,7 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - Keep examples and candidate lists outside the goal unless they are essential execution constraints.
    - Section soft budgets: Destination 250, Context 350, Scope 700, Preserve 400, Verify 550, Done/stop 550 characters.
 
-5. Validate length before returning.
+6. Validate length before returning.
    - Put only the ready-to-paste `/goal ...` command in a temporary file or pipe it to this skill's bundled validator: resolve `scripts/validate_goal_length.py` relative to the directory containing this `SKILL.md`, then run it with `--target-chars 2800 --strict-target`.
    - The validator belongs to Goalcraft, not to the user's working project. Do not search the user's repository for `scripts/validate_goal_length.py`.
    - The script strips a leading `/goal ` and counts the actual objective Codex validates.
@@ -89,7 +97,7 @@ if count > 2800:
 PY
 ```
 
-6. Decide output mode.
+7. Decide output mode.
    - Default: return a ready-to-paste `/goal ...` block plus a short assumptions list.
    - If the user asks for review, critique the draft first and include a revised version.
    - If the user explicitly asks to activate the goal, call the goal tool or app-server surface only after the objective is final and no existing active goal conflict is unresolved.
@@ -127,6 +135,8 @@ Omit companion notes when they add no value. Do not put assumptions, rationale, 
 ## Quality Bar
 
 - The goal should be operationally sharp enough that another agent can continue after compaction or resume.
+- The goal should make the next loop obvious: choose an action, run it, score it, record the result, and continue or stop.
+- For long-running goals, the goal or companion notes should identify the durable state files or generated views that preserve plan, attempts, decisions, and current status.
 - The goal should make premature completion hard: "done" must require evidence, not intent, elapsed time, or passing unrelated checks.
 - The goal should avoid over-prescribing implementation details unless those details are part of the actual requirement.
 - The goal should preserve user boundaries: planning-only, no edits, no deploys, no commits, or approval requirements must be explicit when present.

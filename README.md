@@ -2,7 +2,7 @@
 
 Goalcraft turns a messy task description into a Codex `/goal` you can paste and run.
 
-When you use `/goal`, the agent runs autonomously toward whatever you wrote down. A weak goal means the agent will claim "done" on something that isn't. Goalcraft writes goals that are tight on scope, clear on what counts as done, and structured so the agent has to show real evidence before declaring success.
+When you use `/goal`, the agent runs autonomously toward whatever you wrote down. A weak goal means the agent will claim "done" on something that isn't. Goalcraft writes goals that are tight on scope, clear on what counts as done, and structured so the agent has to show real evidence before declaring success. For long-running work, it also pushes the goal toward a tight loop: choose an action, run it, score it with a fast evaluator or checklist, record the result, and continue or stop based on evidence.
 
 ## Install
 
@@ -28,7 +28,9 @@ A `/goal` that spells out:
 
 - **Where things stand and what "done" looks like** — so the agent has a clear destination
 - **What to work on, what to leave alone** — scope and non-negotiables
-- **How to verify the work** — specific commands, tests, or checks that prove it shipped
+- **How to score progress** — the fast evaluator, checklist, scorecard, or metric that guides each loop
+- **How to verify the work** — the final commands, tests, or checks that prove it shipped
+- **Where to record state** — durable plan, experiment, decision, or notes files when the goal may run for hours or days
 - **When to keep going vs. stop and ask** — autonomy rules for risky or ambiguous moves
 - **What counts as success** — measurable criteria, not "looks good to me"
 
