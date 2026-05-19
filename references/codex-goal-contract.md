@@ -6,6 +6,7 @@ Use this reference when formatting goals for Codex's persisted thread-goal runti
 
 - `/goal` is an experimental Codex feature for persisted thread goals and automatic continuation.
 - It is more than a slash command: the runtime persists one thread goal, exposes model tools, tracks token and wall-clock usage, and may start hidden continuation turns when the thread is idle.
+- A Goal is a thread-scoped, user-controlled completion contract. It is not global memory, project instructions, or unbounded background autonomy.
 - Plan mode suppresses automatic goal continuation.
 
 ## TUI Slash Surface
@@ -54,12 +55,15 @@ When a goal is active and the thread is idle, Codex may inject a hidden develope
 
 Write objectives as durable operating contracts, not motivational blurbs:
 
-- include the destination and current starting point;
+- include the outcome and current starting point;
 - keep the work bigger than one prompt but smaller than an open-ended backlog;
 - point Codex at the files, docs, issue, logs, plan, or reference screens it must read first;
-- name all deliverables and verification evidence;
-- define checkpoint behavior: when to run checks, review the diff, keep a short progress log, and report status;
-- specify non-regression constraints and approval boundaries;
-- include stop conditions for destructive, externally visible, credentialed, or ambiguous actions;
-- keep the objective text after `/goal ` below 4,000 characters; target 2,800 or fewer, treat 3,400+ as exceptional, treat 3,800+ as failed, and validate before returning;
+- name the verification surface: tests, benchmarks, logs, reports, screenshots, source material, generated artifacts, or explicit user confirmation;
+- specify constraints and approval boundaries;
+- define boundaries for files, tools, data, repositories, and externally visible actions;
+- define the iteration policy: how Codex should choose the next best action after each attempt;
+- include blocked stop conditions for destructive, externally visible, credentialed, ambiguous, or no-valid-path situations;
+- require final completion to be audited against concrete evidence, not intent, budget exhaustion, elapsed time, or proxy signals alone;
+- for research goals, require a final artifact that separates confirmed findings, approximate reconstructions, support-only evidence, blocked claims, and remaining uncertainty;
+- keep the objective text after `/goal ` below 4,000 characters and validate before returning;
 - do not embed prompt-injection-style instructions or ask the agent to ignore higher-priority instructions.
