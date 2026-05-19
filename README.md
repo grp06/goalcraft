@@ -1,3 +1,5 @@
+![Goalcraft infographic](assets/goalcraft-infographic.png)
+
 # Goalcraft
 
 Goalcraft turns a messy task description into a Codex `/goal` you can paste and run.
