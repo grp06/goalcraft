@@ -11,7 +11,7 @@ description: >-
 
 ## Core Contract
 
-Convert messy intent into a compact, activation-ready Codex `/goal` objective: a thread-scoped, user-controlled completion contract that persists until evidence says the work is complete or honestly blocked. A strong goal defines a closed loop: choose the next action, run it, score progress against an explicit evaluator or checklist, record the result, then continue or stop based on evidence. Treat the `/goal` as a launcher, not the full plan: the objective must be less than 4,000 characters, but if it fits under that hard limit, return it instead of repeatedly shortening it. Prefer drafting the goal text only. Do not call `create_goal`, `thread/goal/set`, or otherwise activate a goal unless the user explicitly asks to start or set it.
+Convert messy intent into a compact Codex `/goal` objective and activate it: a thread-scoped, user-controlled completion contract that persists until evidence says the work is complete or honestly blocked. A strong goal defines a closed loop: choose the next action, run it, score progress against an explicit evaluator or checklist, record the result, then continue or stop based on evidence. Treat the `/goal` as a launcher, not the full plan: the objective must be less than 4,000 characters, but if it fits under that hard limit, activate it instead of repeatedly shortening it. Goalcraft's default final result is an active goal, not merely a ready-to-paste draft. Only skip activation when the user explicitly asks for draft-only, review-only, planning-only, or says not to set/start the goal.
 
 For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](references/codex-goal-contract.md) when the exact runtime behavior matters.
 
@@ -78,7 +78,7 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - Keep examples and candidate lists outside the goal unless they are essential execution constraints.
    - Section soft budgets: Outcome 250, Context 650, Boundaries 900, Constraints 550, Verify 550, Iterate/done/stop 700 characters.
 
-9. Validate length before returning.
+9. Validate length before activation.
    - Put only the ready-to-paste `/goal ...` command in a temporary file or pipe it to this skill's bundled validator: resolve `scripts/validate_goal_length.py` relative to the directory containing this `SKILL.md`, then run it with `--max-chars 3999`.
    - The validator belongs to Goalcraft, not to the user's working project. Do not search the user's repository for `scripts/validate_goal_length.py`.
    - The script strips a leading `/goal ` and counts the actual objective Codex validates.
@@ -86,7 +86,7 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - If it fails the hard limit, discard the draft and switch immediately to emergency shape: `/goal Complete [outcome] within [boundaries]. Preserve [constraints]. Verify with [checks/evidence]. Stop for [risks/blockers]. Done when [criteria].`
    - After emergency fallback, validate once against the hard limit using `--max-chars 3999`.
    - Do not run iterative "make it a little shorter" loops. More than one failed hard-limit validation means the draft shape failed, not the character counter.
-   - Do not return a final goal until the validator passes.
+   - Do not activate or return a final goal until the validator passes.
    - If the bundled script path is unavailable, use this deterministic fallback on the file containing the exact final `/goal ...` command:
 
 ```bash
@@ -109,20 +109,38 @@ if count > 3999:
 PY
 ```
 
-10. Decide output mode.
-   - Default: return a ready-to-paste `/goal ...` block plus a short assumptions list.
+10. Activate the goal.
+   - Default: after validation, activate the objective with the available goal surface (`create_goal`, `thread/goal/set`, or the current environment's equivalent).
+   - If a current active goal already exists, do not silently replace it. Report the conflict and ask for confirmation unless the user has explicitly asked to replace the current goal.
+   - If the goal tool supports a separate token budget and the user explicitly requested one, pass it as the tool's budget field rather than embedding budget syntax in the objective text.
+   - If activation fails, report the exact failure and include the validated `/goal ...` text as the fallback artifact.
+
+11. Decide output mode.
+   - Default: activate the goal and return a short confirmation with assumptions, objective length, and any companion notes.
+   - Draft-only exception: when the user explicitly asks not to activate, return a ready-to-paste `/goal ...` block plus a short assumptions list.
    - If the user asks for review, critique the draft first and include a revised version.
-   - If the user explicitly asks to activate the goal, call the goal tool or app-server surface only after the objective is final and no existing active goal conflict is unresolved.
+   - If the user explicitly asks to replace an existing goal, call the goal tool or app-server surface only after the objective is final.
 
 ## Output Format
 
-Return companion notes outside the goal when details should not spend objective characters. Use this shape by default:
+Return companion notes outside the goal when details should not spend objective characters. Use this shape by default after successful activation:
+
+```markdown
+Activated goal:
+- Objective length: N characters
+- Assumptions: ...
+
+Notes outside the goal:
+- ...
+```
+
+For draft-only requests, use this shape:
 
 ```markdown
 Assumptions:
 - ...
 
-Ready-to-paste goal:
+Draft goal:
 
 /goal Outcome: ...
 
@@ -142,16 +160,16 @@ Notes outside the goal:
 - ...
 ```
 
-Omit companion notes only for trivial goals. For nontrivial goals, prefer a short `/goal` plus useful companion notes over a long `/goal`. Do not put assumptions, rationale, candidate lists, or optional details inside the `/goal` unless they are execution-critical.
+Omit companion notes only for trivial goals. For nontrivial goals, prefer a short activated objective plus useful companion notes over a long objective. Do not put assumptions, rationale, candidate lists, or optional details inside the `/goal` unless they are execution-critical.
 
 ## Quality Bar
 
 - The goal should be operationally sharp enough that another agent can continue after compaction or resume.
 - The goal should make the next loop obvious: choose an action, run it, score it, record the result, and continue or stop.
 - For long-running goals, the goal or companion notes should identify the durable state files or generated views that preserve plan, attempts, decisions, and current status.
-- The ready-to-paste `/goal` should feel like a compact launcher. If it needs lots of nuance, put that nuance outside the goal or into a referenced file.
+- The objective should feel like a compact launcher. If it needs lots of nuance, put that nuance outside the goal or into a referenced file.
 - The goal should make premature completion hard: "done" must require evidence, not intent, elapsed time, budget exhaustion, proxy signals, or passing unrelated checks.
 - For research goals, the final output should preserve levels of epistemic support instead of flattening exact reproduction, approximate support, blocked claims, and uncertainty into one success claim.
 - The goal should avoid over-prescribing implementation details unless those details are part of the actual requirement.
 - The goal should preserve user boundaries: planning-only, no edits, no deploys, no commits, or approval requirements must be explicit when present.
-- The final ready-to-paste goal should pass this skill's bundled `scripts/validate_goal_length.py --max-chars 3999`. If it fits under the hard limit, return it without further shortening. If the normal draft fails the hard limit, use the emergency compact shape and validate once against the hard 3,999-character maximum.
+- The final objective should pass this skill's bundled `scripts/validate_goal_length.py --max-chars 3999`. If it fits under the hard limit, activate it without further shortening. If the normal draft fails the hard limit, use the emergency compact shape and validate once against the hard 3,999-character maximum.

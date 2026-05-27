@@ -2,7 +2,7 @@
 
 # Goalcraft
 
-Goalcraft turns a messy task description into a Codex `/goal` you can paste and run.
+Goalcraft turns a messy task description into a Codex `/goal` and activates it.
 
 When you use `/goal`, Codex works against a persistent, thread-scoped completion contract. A weak goal means the agent may claim "done" on something that isn't. Goalcraft writes compact launcher goals that define the outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition, so the agent has to show real evidence before declaring success. For long-running work, it also pushes the goal toward a tight loop: choose an action, run it, score it with a fast evaluator or checklist, record the result, and continue or stop based on evidence.
 
@@ -26,7 +26,7 @@ Restart Codex, then invoke it with a rough brief. The brief doesn't need to be c
 
 ## What you get back
 
-A `/goal` that spells out:
+An activated `/goal` that spells out:
 
 - **Outcome** — what must be true when the work is done
 - **Verification surface** — tests, benchmarks, logs, reports, screenshots, source material, or explicit confirmation that proves it
@@ -38,7 +38,7 @@ A `/goal` that spells out:
 
 The `/goal` itself is intentionally short. Goalcraft puts supporting rationale, examples, candidate lists, and detailed evaluator notes outside the goal unless they are execution-critical.
 
-By default, goalcraft only drafts the goal. It won't activate it unless you tell it to.
+By default, Goalcraft validates and activates the goal. Ask for a draft-only, review-only, or planning-only pass when you want text back without setting the active goal.
 
 Goalcraft will also say when a normal prompt is the better tool. One-line edits, simple explanations, short code reviews, or vague requests without an auditable finish line usually need either a normal Codex prompt or a goal-sharpening pass before activation.
 

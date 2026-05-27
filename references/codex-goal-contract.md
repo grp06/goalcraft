@@ -65,5 +65,5 @@ Write objectives as durable operating contracts, not motivational blurbs:
 - include blocked stop conditions for destructive, externally visible, credentialed, ambiguous, or no-valid-path situations;
 - require final completion to be audited against concrete evidence, not intent, budget exhaustion, elapsed time, or proxy signals alone;
 - for research goals, require a final artifact that separates confirmed findings, approximate reconstructions, support-only evidence, blocked claims, and remaining uncertainty;
-- keep the objective text after `/goal ` below 4,000 characters and validate before returning;
+- keep the objective text after `/goal ` below 4,000 characters and validate before activation;
 - do not embed prompt-injection-style instructions or ask the agent to ignore higher-priority instructions.
