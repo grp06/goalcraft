@@ -41,11 +41,17 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - Approval boundaries: destructive actions, credentials, deploys, commits, messages, purchases, or other user-controlled decisions.
    - Checkpoint rhythm: how often to test, review, summarize progress, or pause.
    - Success metric: the observable result that proves completion.
+   - Realistic environment: production-like preview, matching flags/config, representative data, authenticated browser session, real device, or other surface needed for evidence to mean what the goal says it means.
+   - Progress surface: attempt ledger, current-state summary, draft PR, meaningful commit cadence, status artifact, update channel, or side-chat-readable status when the work may run for hours or days.
 
 5. Design the feedback loop before drafting the final goal.
    - Identify the score: metric, checklist, test result, scorecard, artifact count, benchmark, manual-review packet, or other evidence that lets Codex decide whether progress improved, stalled, or completed.
+   - For measurable goals, prefer a baseline, target, measurement method, and counter-metric or anti-gaming guardrail. For example, test pass-rate goals should not be achieved by reducing meaningful coverage.
    - Prefer a fast iteration evaluator plus a slower final gate. For example: cheap smoke test, subsampled eval, lint/typecheck, focused replay, or checklist during work; full suite, full replay, deploy check, visual review, or final report before done.
+   - For environment-sensitive goals, name the closest realistic environment Codex may use. If it cannot access one, either make environment setup the preliminary goal or require proxy results to be labeled as such.
+   - For visual goals, treat images as context unless image matching is explicitly the requirement. Define completion through feature checklist, design-system adherence, interaction behavior, accessibility, and visual-diff tooling when appropriate; do not allow shortcuts such as cropping or inlining the reference image to fake fidelity.
    - For multi-hour or multi-day goals, name or recommend durable tracking surfaces: a current plan/queue, experiment or attempt ledger, decision/rejection log, scratchpad or daily notes, and generated current-state summary when useful.
+   - For long-running implementation goals, consider whether commits, a draft PR, deploy preview, status artifact, or update channel should be part of the control loop.
    - If the real goal cannot yet be measured, recommend a preliminary goal to create the checklist, evaluator, scorecard, or tracking files before starting the main continuation loop.
    - Treat tracking files as part of the control loop, not optional documentation. They should help the next agent choose the next action without rereading the full conversation.
 
@@ -62,6 +68,7 @@ For current Codex `/goal` mechanics, read [references/codex-goal-contract.md](re
    - The `/goal` should be the compact execution contract. Put rationale, examples, candidate lists, detailed scorecards, and nonessential context in companion notes outside the `/goal` payload.
    - Make every requirement auditable against files, commands, PR state, logs, screenshots, or explicit user confirmation.
    - Include score-loop and tracking-file detail in the `/goal` only when execution-critical; otherwise put detailed evaluator/checklist/memory structure in companion notes or a referenced repo document.
+   - Include baseline, target, anti-gaming, realistic-environment, visual-completion, progress-surface, and cleanup-gate details in the `/goal` only when they are execution-critical; otherwise put them in companion notes.
    - Include exact commands only when they are already known from the repo or user.
    - Avoid hidden flags in slash text. `/goal --tokens 50K ...` is literal objective text in the TUI, not parsed syntax.
    - If a token budget is requested, present it separately from the objective text unless the target surface supports a separate budget field.
@@ -169,7 +176,11 @@ Omit companion notes only for trivial goals. For nontrivial goals, prefer a shor
 - For long-running goals, the goal or companion notes should identify the durable state files or generated views that preserve plan, attempts, decisions, and current status.
 - The objective should feel like a compact launcher. If it needs lots of nuance, put that nuance outside the goal or into a referenced file.
 - The goal should make premature completion hard: "done" must require evidence, not intent, elapsed time, budget exhaustion, proxy signals, or passing unrelated checks.
+- The goal should make fake progress hard: preserve meaningful coverage, realistic inputs, real interaction paths, and other counter-metrics that prevent Codex from satisfying the letter of the goal while missing the intent.
 - For research goals, the final output should preserve levels of epistemic support instead of flattening exact reproduction, approximate support, blocked claims, and uncertainty into one success claim.
+- For environment-sensitive goals, evidence should come from the closest realistic environment available; proxy evidence must be clearly labeled.
+- For visual goals, reference images should not become the only exit criterion unless the user explicitly asks for image matching; completion should be anchored to specs, design-system rules, interactions, accessibility, and visual-diff evidence when useful.
+- For long-running implementation goals, completion should include a cleanup/review gate: inspect failed attempts, remove abandoned scaffolding, run the relevant review/tests, and summarize final evidence plus remaining risks.
 - The goal should avoid over-prescribing implementation details unless those details are part of the actual requirement.
 - The goal should preserve user boundaries: planning-only, no edits, no deploys, no commits, or approval requirements must be explicit when present.
 - The final objective should pass this skill's bundled `scripts/validate_goal_length.py --max-chars 3999`. If it fits under the hard limit, activate it without further shortening. If the normal draft fails the hard limit, use the emergency compact shape and validate once against the hard 3,999-character maximum.
