@@ -1,53 +1,76 @@
-![Goalcraft infographic](assets/goalcraft-infographic.png)
-
 # Goalcraft
 
-Goalcraft turns a messy task description into a Codex `/goal` and activates it.
+Goalcraft turns a messy task description into a concise, evidence-checked
+pi-goal `/goal` objective.
 
-When you use `/goal`, Codex works against a persistent, thread-scoped completion contract. A weak goal means the agent may claim "done" on something that isn't. Goalcraft writes compact launcher goals that define the outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition, so the agent has to show real evidence before declaring success. For long-running work, it also pushes the goal toward a tight loop: choose an action, run it, score it with a fast evaluator or checklist, record the result, and continue or stop based on evidence.
+Pi's `/goal` command keeps the objective active across turns. Goalcraft shapes
+that objective around the outcome, verification surface, constraints,
+boundaries, iteration policy, and blocked stop condition, so completion requires
+current evidence rather than intention.
+
+Goalcraft is a Pi skill, not a replacement for the pi-goal extension. By
+itself it drafts and validates the `/goal` command. Run that command in Pi to
+activate it, or use an executable integration that submits it through the
+pi-goal RPC contract.
 
 ## Install
 
-Clone the repo, then symlink it into your Codex skills directory:
+Clone the repo, then symlink it into Pi's global skills directory:
 
 ```bash
 git clone https://github.com/grp06/goalcraft.git
 cd goalcraft
-ln -s "$(pwd)" ~/.codex/skills/goalcraft
+ln -s "$(pwd)" ~/.pi/agent/skills/goalcraft
 ```
 
-If your Codex setup uses a different skills directory, symlink the repo there instead. The skill is self-contained; it does not depend on any local project path.
+Pi also discovers skills from `.pi/skills/`, `.agents/skills/`, configured skill
+paths, packages, and explicit `--skill` paths. Restart Pi after installing or
+changing a skill.
 
-Restart Codex, then invoke it with a rough brief. The brief doesn't need to be clean — that's the point:
-
-> Use `$goalcraft` to turn this into a Codex `/goal`:
->
-> I need to clean up the billing settings page in the web app. It's kind of half-done from a previous pass. The upgrade button works but the loading and error states are janky, and I think mobile is probably broken. Please make it match the rest of the settings UI, don't touch the Stripe webhook stuff or pricing logic unless something is obviously wrong, and don't do a huge refactor. It should have tests or at least whatever checks this repo normally uses. I want Codex to keep going until the page is actually usable and verified, but it should stop and ask me before changing public APIs, database schema, or anything payment-risky.
+Invoke the skill with `/skill:goalcraft` when skill commands are enabled. Give
+it a rough brief; it will turn it into a ready-to-run `/goal` command.
 
 ## What you get back
 
-An activated `/goal` that spells out:
+A compact `/goal` objective that spells out:
 
 - **Outcome** — what must be true when the work is done
-- **Verification surface** — tests, benchmarks, logs, reports, screenshots, source material, or explicit confirmation that proves it
-- **Constraints** — what must not regress while Codex works
+- **Verification surface** — tests, benchmarks, logs, reports, screenshots, source material, or other evidence
+- **Constraints** — what must not regress
 - **Boundaries** — files, systems, tools, data, repositories, and user-controlled actions to stay within
-- **Iteration policy** — how Codex should choose the next useful action after each attempt
+- **Iteration policy** — how to choose the next useful action after each attempt
 - **Blocked stop condition** — when to stop, what evidence to report, and what input would unlock progress
-- **Durable state** — plan, experiment, decision, or notes files when the goal may run for hours or days
+- **Durable state** — plan, experiment, decision, or notes files when the work may run for hours or days
 
-The `/goal` itself is intentionally short. Goalcraft puts supporting rationale, examples, candidate lists, and detailed evaluator notes outside the goal unless they are execution-critical.
+The objective is intentionally short. Put supporting rationale, examples,
+detailed evaluator notes, and nonessential context in companion files.
 
-By default, Goalcraft validates and activates the goal. Ask for a draft-only, review-only, or planning-only pass when you want text back without setting the active goal.
+Goalcraft recommends a normal prompt for one-line edits, simple explanations,
+short code reviews, or requests without an auditable finish line.
 
-Goalcraft will also say when a normal prompt is the better tool. One-line edits, simple explanations, short code reviews, or vague requests without an auditable finish line usually need either a normal Codex prompt or a goal-sharpening pass before activation.
+## pi-goal surface
 
-## Length safety
+The generated command uses pi-goal's direct command surface:
 
-Codex caps `/goal` text at 4,000 characters. Goalcraft treats that as the hard limit and avoids repeatedly shortening drafts that already fit. If a normal draft exceeds the hard limit, Goalcraft switches to a compact fallback instead of shaving a few characters repeatedly. If you want to check a goal manually from this repo:
-
-```bash
-python3 scripts/validate_goal_length.py --max-chars 3999 goal.txt
+```text
+/goal <objective>
+/goal --tokens 100k <objective>
+/goal edit <objective>
+/goal pause
+/goal resume
+/goal clear
 ```
 
-That script is bundled with this Goalcraft repo. When the skill is used while working in another project, agents should resolve `scripts/validate_goal_length.py` relative to Goalcraft's own `SKILL.md`, not relative to the project being edited. If the skill runtime does not expose that path, Goalcraft's instructions include an inline Python fallback that works anywhere with Python 3.
+With pi-goal's experimental queue enabled, `/goal add`, `/goal prioritize`,
+`/goal drop-last`, and `/goal skip` are also available. Goalcraft should use
+those only when ordered work is explicitly requested.
+
+pi-goal validates objectives at up to 4,000 characters. Validate a command
+manually from this repository with:
+
+```bash
+python3 scripts/validate_goal_length.py --max-chars 4000 goal.txt
+```
+
+The validator belongs to Goalcraft. When used from another project, resolve
+`scripts/validate_goal_length.py` relative to Goalcraft's own `SKILL.md`.
