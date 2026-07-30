@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Validate that a Codex /goal objective fits the TUI objective limit."""
+"""Validate that a pi-goal /goal objective fits its character limit."""
 
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 
-DEFAULT_MAX_CHARS = 3_999
+DEFAULT_MAX_CHARS = 4_000
 TARGET_CHARS = DEFAULT_MAX_CHARS
+_BUDGET = r"--tokens\s+\S+\s*"
+_SUBCOMMAND = r"(?:edit|add|prioritize)\s+"
 
 
 def objective_text(text: str) -> str:
@@ -24,7 +27,9 @@ def objective_text(text: str) -> str:
     if text.startswith("/goal"):
         rest = text[len("/goal") :]
         if rest.startswith((" ", "\n", "\t")):
-            return rest.strip()
+            text = rest.strip()
+            text = re.sub(rf"^{_SUBCOMMAND}", "", text, flags=re.IGNORECASE)
+            text = re.sub(rf"^{_BUDGET}", "", text, flags=re.IGNORECASE)
     return text
 
 
@@ -36,7 +41,7 @@ def read_input(path: str | None) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Validate a Codex /goal objective is under the character limit."
+        description="Validate a pi-goal /goal objective is within the character limit."
     )
     parser.add_argument("path", nargs="?", help="File containing the /goal command or objective.")
     parser.add_argument(
@@ -64,7 +69,7 @@ def main() -> int:
     print(f"target_chars={args.target_chars}")
     print(f"max_chars={args.max_chars}")
     if count > args.max_chars:
-        print("error=objective exceeds Codex /goal character limit", file=sys.stderr)
+        print("error=objective exceeds pi-goal /goal character limit", file=sys.stderr)
         return 1
     if count > args.target_chars:
         print("warning=objective passes hard limit but exceeds target", file=sys.stderr)
